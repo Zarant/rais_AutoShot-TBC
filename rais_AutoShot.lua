@@ -6,16 +6,16 @@ local AddOn = "rais_AutoShot"
 local _G = getfenv(0)
 
 
-	local Textures = {
-		Bar = "Interface\\AddOns\\"..AddOn.."\\Textures\\Bar.tga",
-	}
-	
-	local Table = {
-		["posX"] = 0;
-		["posY"] = -180;
-		["Width"] = 100;
-		["Height"] = 15;
-	}
+local Textures = {
+	Bar = "Interface\\AddOns\\"..AddOn.."\\Textures\\Bar.tga",
+}
+
+local Table = {
+	["posX"] = 0;
+	["posY"] = -180;
+	["Width"] = 100;
+	["Height"] = 15;
+}
 	
 	
 local Debug = false
@@ -26,18 +26,18 @@ local castTime = 0.60
 	
 
 
-	local castdelay = 0
-	local castStart = false;
-	local swingStart = false;
-	local shooting = false; 
-	local posX, posY 
-	local swingTime
-	local prevswing = 0
-	local relative
-	local InterruptTimer = 0
-	
-	
-	local Lat
+local castdelay = 0
+local castStart = false;
+local swingStart = false;
+local shooting = false; 
+local posX, posY 
+local swingTime
+local prevswing = 0
+local relative
+local InterruptTimer = 0
+
+
+local Lat
 
 	
 	local function AutoShotBar_Create()
@@ -158,13 +158,9 @@ local castTime = 0.60
 				_G[AddOn.."_Texture_Timer"]:SetWidth(Table["Width"] * relative/castTime);
 			end
 		end
-		multis = nil;
 		if ((relative > (castTime - castdelay)) and (castStart ~= false)) then
 			_G[AddOn.."_Texture_Timer"]:SetVertexColor(0,0,0.5);		
 
-		
-
-			
 		end
 		
 	end
@@ -174,6 +170,7 @@ local castTime = 0.60
 		Cast_Start();
 		shooting = true;
 	end
+	
 	local function Shot_End()
 		if ( swingStart == false ) then
 			_G[AddOn.."_Frame_Timer"]:SetAlpha(0);
@@ -183,6 +180,7 @@ local castTime = 0.60
 		shooting = false
 	end
 
+	
 	local prevswingspeed = false
 	local function Swing_Start()
 		
@@ -236,38 +234,37 @@ local castTime = 0.60
 	Frame:SetScript("OnEvent",function()
 
 	
-	if Debug == true then
-		
-		if not ((event == "WORLD_MAP_UPDATE") or (event == "UPDATE_SHAPESHIFT_FORM") or string.find(event,"LIST_UPDATE") or string.find(event,"COMBAT_LOG") or string.find(event,"CHAT") or string.find(event,"CHANNEL")) then
-		local a = GetTime()..' '..event..':'
-		if arg1 ~= nil then
-			a = a.."/"..tostring(arg1)
+		if Debug == true then
+			
+			if not ((event == "WORLD_MAP_UPDATE") or (event == "UPDATE_SHAPESHIFT_FORM") or string.find(event,"LIST_UPDATE") or string.find(event,"COMBAT_LOG") or string.find(event,"CHAT") or string.find(event,"CHANNEL")) then
+				local a = GetTime()..' '..event..':'
+				if arg1 ~= nil then
+					a = a.."/"..tostring(arg1)
+				end
+				if arg2 ~= nil then
+					a = a.."/"..tostring(arg2)
+				end
+				if arg3 ~= nil then
+					a = a.."/"..tostring(arg3)
+				end
+				if arg4 ~= nil then
+					a = a.."/"..tostring(arg4)
+				end
+				DEFAULT_CHAT_FRAME:AddMessage(a)
+			end
 		end
-		if arg2 ~= nil then
-			a = a.."/"..tostring(arg2)
-		end
-		if arg3 ~= nil then
-			a = a.."/"..tostring(arg3)
-		end
-		if arg4 ~= nil then
-			a = a.."/"..tostring(arg4)
-		end
-		
-		DEFAULT_CHAT_FRAME:AddMessage(a)
-		end
-	end
 
 		if (event == "UNIT_SPELLCAST_SUCCEEDED") and arg1 == "player" then
-					
-					if arg2 == "Auto Shot" then
-					castdelay = autoshot_latency/1e3
-					autoshot_latency_update();
-					Swing_Start();
-					
-					elseif _G[AddOn.."_Frame_Timer"]:GetAlpha() == 0 and (arg2 == "Steady Shot" or arg2 == "Multi-Shot" or arg2 == "Aimed Shot") then
+	
+			if arg2 == "Auto Shot" then
+			castdelay = autoshot_latency/1e3
+			autoshot_latency_update();
+			Swing_Start();
+			
+			elseif _G[AddOn.."_Frame_Timer"]:GetAlpha() == 0 and (arg2 == "Steady Shot" or arg2 == "Multi-Shot" or arg2 == "Aimed Shot") then
 
-							Cast_Interrupted();	
-					end
+				Cast_Interrupted();	
+			end
 
 		end
 		
@@ -279,51 +276,39 @@ local castTime = 0.60
 			AutoShotBar_Create();
 			DEFAULT_CHAT_FRAME:AddMessage("|cff00ccff"..AddOn.."|cffffffff Loaded");
 		end
+		
 		if ( event == "START_AUTOREPEAT_SPELL" ) then
-
-			
 			if castdelay > 0 then
 				castdelay = 0
 				autoshot_latency_update();
 			end
 			
-			Shot_Start();
-			
-			
+			Shot_Start();	
 		end
+		
 		if ( event == "STOP_AUTOREPEAT_SPELL" ) then
 			prevswingspeed = false
 			Shot_End();
 		end
 
-		
-	
-		
-
 
 	end)
 
-	AutoShotRange = 0
-	
+	local AutoShotRange = 0
 	Frame:SetScript("OnUpdate",function()
 		
 		if IsSpellInRange("Auto Shot","target") == 1 and AutoShotRange == 0 and castStart == false and swingStart == false then
 		   Cast_Start()
 		end
 		
-		
 		if ( shooting == true ) then
-		
 
-		
 			autoshot_latency_update()
 			if ( castStart ~= false ) then
 			
-				local cposX, cposY = GetPlayerMapPosition("player") -- player position atm
-				
-					
+				local cposX, cposY = GetPlayerMapPosition("player") -- player position atm				
+
 				if ( posX == cposX and posY == cposY ) then
-					
 					Cast_Update();
 				else
 					if castdelay > 0 then
@@ -332,24 +317,19 @@ local castTime = 0.60
 						autoshot_latency_update();
 					end
 					Cast_Interrupted();
-					
+
 				end
 			end
-					
-
 			
 		end
 
-
 		if ( swingStart ~= false ) then
 			relative = GetTime() - swingStart
-			
+
 			_G[AddOn.."_Texture_Timer"]:SetWidth(Table["Width"] - (Table["Width"]*relative/swingTime));
 			_G[AddOn.."_Texture_Timer"]:SetVertexColor(1,1,1);
 			
-			
-	
-			
+		
 			if ( relative > swingTime ) then
 				if ( shooting == true and UnitCastingInfo("player") == nil ) then
 					Cast_Start()
@@ -361,11 +341,6 @@ local castTime = 0.60
 				swingStart = false;
 			end
 		end
-		
 		AutoShotRange = IsSpellInRange("Auto Shot","target")
+	
 	end)
-
-	
-	
-
-	
