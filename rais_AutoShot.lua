@@ -1,19 +1,6 @@
-﻿--[[ 
-	#1 Cast_Interrupt reset
-
-
-	# Nostalrius Bug
-		--> "ITEM_LOCK CHANGED" van a "SPELLCAST_STOP" helyett 
-		--> reportolva van már nostalrius bugtrackeren, ha fixelik cseréljem le "SPELLCAST_STOP"-ra 
-		--> https://report.nostalrius.org/plugins/tracker/?aid=310
-]]
-
-
 
 local _,class = UnitClass("player");
 if not(class == "HUNTER") then return end
-
-local Debug = false
 
 local AddOn = "rais_AutoShot"
 local _G = getfenv(0)
@@ -31,8 +18,10 @@ local _G = getfenv(0)
 	}
 	
 	
+local Debug = false
+autoshot_latency = 0
+local castTime = 0.60
 
-	autoshot_latency = 0
 
 	
 
@@ -40,18 +29,14 @@ local _G = getfenv(0)
 	local castdelay = 0
 	local castStart = false;
 	local swingStart = false;
-	local shooting = false; -- player adott pillantban lő-e
-	local posX, posY -- player position when starts Casting
-	--local interruptTime -- Concussive shot miatt
-	local castTime = 0.60
+	local shooting = false; 
+	local posX, posY 
 	local swingTime
-	local ammoCount = 0
 	local prevswing = 0
 	local relative
 	local InterruptTimer = 0
 	
 	
-	--local Background
 	local Lat
 
 	
@@ -223,16 +208,7 @@ local _G = getfenv(0)
 
 
 	
-
-
-
-	
-	
-	local eventCount = 0
-	local spellcast = 0
-	local spelltimer = 0
-	
-	function print(a)
+	local function print(a)
 		DEFAULT_CHAT_FRAME:AddMessage(a)
 	end
 
@@ -255,14 +231,7 @@ local _G = getfenv(0)
 		Frame:RegisterAllEvents()
 	end
 	
-	if (PlayerRace == "Troll") then
-		Frame:RegisterEvent("UNIT_AURA")
-	end	
-	--zone_changed_new_area
-	local ammoCheck = false
-	local previousEvent
-	local lockTimer = 0
-	local csccTimer = 0
+
 	
 	Frame:SetScript("OnEvent",function()
 
@@ -270,7 +239,7 @@ local _G = getfenv(0)
 	if Debug == true then
 		
 		if not ((event == "WORLD_MAP_UPDATE") or (event == "UPDATE_SHAPESHIFT_FORM") or string.find(event,"LIST_UPDATE") or string.find(event,"COMBAT_LOG") or string.find(event,"CHAT") or string.find(event,"CHANNEL")) then
-		local a = (GetTime() - spelltimer)..' '..event..'-'..eventCount..':'..spellcast
+		local a = GetTime()..' '..event..':'
 		if arg1 ~= nil then
 			a = a.."/"..tostring(arg1)
 		end
@@ -331,18 +300,17 @@ local _G = getfenv(0)
 	
 		
 
-		
-		previousEvent = event;
+
 	end)
 
-	RangeToggle = 0
+	AutoShotRange = 0
 	
 	Frame:SetScript("OnUpdate",function()
 		
-		if IsSpellInRange("Auto Shot","target") == 1 and RangeToggle == 0 and castStart == false then
+		if IsSpellInRange("Auto Shot","target") == 1 and AutoShotRange == 0 and castStart == false and swingStart == false then
 		   Cast_Start()
 		end
-		RangeToggle = IsSpellInRange("Auto Shot","target")
+		
 		
 		if ( shooting == true ) then
 		
@@ -393,6 +361,8 @@ local _G = getfenv(0)
 				swingStart = false;
 			end
 		end
+		
+		AutoShotRange = IsSpellInRange("Auto Shot","target")
 	end)
 
 	
