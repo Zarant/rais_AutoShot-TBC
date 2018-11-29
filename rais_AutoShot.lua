@@ -249,7 +249,7 @@ Frame:SetScript("OnEvent",function()
 		end
 	end
 
-	if ((event == "UNIT_SPELLCAST_SUCCEEDED") or (event == "UNIT_SPELLCAST_START")) and arg1 == "player" then
+	if ((event == "UNIT_SPELLCAST_SUCCEEDED") or (event == "UNIT_SPELLCAST_START") or (event == "UNIT_SPELLCAST_STOP")) and arg1 == "player" then
 
 		if arg2 == "Auto Shot" then
 		castdelay = autoshot_latency/1e3
@@ -257,10 +257,14 @@ Frame:SetScript("OnEvent",function()
 		Swing_Start();
 		
 		elseif _G[AddOn.."_Frame_Timer"]:GetAlpha() == 0 and (arg2 == "Steady Shot" or arg2 == "Multi-Shot" or arg2 == "Aimed Shot") then
-
 			Cast_Interrupted();	
 		end
 
+	end
+	
+	--
+	if event == "UNIT_SPELLCAST_FAILED" and arg1 == "player" and (arg2 == "Auto Shot" ) then
+		Cast_Interrupted();
 	end
 	
 	if event == "UNIT_SPELLCAST_SENT" and arg1 == "player" and arg2 == "Multi-Shot" then
