@@ -4,4 +4,4 @@
 ## Author: Zarant
 ## SavedVariables: autoshot_latency
 
-rais_AutoShot.lua
+rais_AutoShot-TBC.lua
