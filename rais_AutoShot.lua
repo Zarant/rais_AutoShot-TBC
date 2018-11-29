@@ -214,14 +214,9 @@ local Frame = CreateFrame("Frame");
 Frame:RegisterEvent("UNIT_SPELLCAST_SENT")
 Frame:RegisterEvent("PLAYER_LOGIN")
 Frame:RegisterEvent("UNIT_SPELLCAST_STOP")
-Frame:RegisterEvent("CURRENT_SPELL_CAST_CHANGED")
 Frame:RegisterEvent("START_AUTOREPEAT_SPELL")
 Frame:RegisterEvent("STOP_AUTOREPEAT_SPELL")
-Frame:RegisterEvent("ITEM_LOCK_CHANGED")
-Frame:RegisterEvent("CHAT_MSG_SPELL_FAILED_LOCALPLAYER")
 Frame:RegisterEvent("UNIT_SPELLCAST_FAILED")
-Frame:RegisterEvent("SPELL_UPDATE_COOLDOWN")
-
 Frame:RegisterEvent("UNIT_SPELLCAST_START")
 Frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 
@@ -254,7 +249,7 @@ Frame:SetScript("OnEvent",function()
 		end
 	end
 
-	if (event == "UNIT_SPELLCAST_SUCCEEDED") and arg1 == "player" then
+	if ((event == "UNIT_SPELLCAST_SUCCEEDED") or (event == "UNIT_SPELLCAST_START")) and arg1 == "player" then
 
 		if arg2 == "Auto Shot" then
 		castdelay = autoshot_latency/1e3
