@@ -29,7 +29,7 @@ local castTime = 0.60
 local castdelay = 0
 local castStart = false;
 local swingStart = false;
-local shooting = false; 
+
 local posX, posY 
 local swingTime
 local prevswing = 0
@@ -166,19 +166,6 @@ local function Cast_Update()
 end
 
 
-local function Shot_Start()
-	Cast_Start();
-	shooting = true;
-end
-
-local function Shot_End()
-	if ( swingStart == false ) then
-		_G[AddOn.."_Frame_Timer"]:SetAlpha(0);
-		_G[AddOn.."_Frame_Timer2"]:SetAlpha(0);
-	end
-	castStart = false
-	shooting = false
-end
 
 
 local prevswingspeed = false
@@ -214,8 +201,7 @@ local Frame = CreateFrame("Frame");
 Frame:RegisterEvent("UNIT_SPELLCAST_SENT")
 Frame:RegisterEvent("PLAYER_LOGIN")
 Frame:RegisterEvent("UNIT_SPELLCAST_STOP")
-Frame:RegisterEvent("START_AUTOREPEAT_SPELL")
-Frame:RegisterEvent("STOP_AUTOREPEAT_SPELL")
+
 Frame:RegisterEvent("UNIT_SPELLCAST_FAILED")
 Frame:RegisterEvent("UNIT_SPELLCAST_START")
 Frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -267,8 +253,12 @@ Frame:SetScript("OnEvent",function()
 		Cast_Interrupted();
 	end
 	
-	if event == "UNIT_SPELLCAST_SENT" and arg1 == "player" and arg2 == "Multi-Shot" then
-		InterruptTimer = GetTime()+0.5
+	if event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then 
+		if arg2 == "Multi-Shot" then
+			InterruptTimer = GetTime()+0.5
+		elseif arg2 == "Auto Shot" then
+			Cast_Start()
+		end
 	end
 	
 	if ( event == "PLAYER_LOGIN" ) then
@@ -276,19 +266,6 @@ Frame:SetScript("OnEvent",function()
 		DEFAULT_CHAT_FRAME:AddMessage("|cff00ccff"..AddOn.."|cffffffff Loaded");
 	end
 	
-	if ( event == "START_AUTOREPEAT_SPELL" ) then
-		if castdelay > 0 then
-			castdelay = 0
-			autoshot_latency_update();
-		end
-		
-		Shot_Start();	
-	end
-	
-	if ( event == "STOP_AUTOREPEAT_SPELL" ) then
-		prevswingspeed = false
-		Shot_End();
-	end
 
 
 end)
@@ -296,31 +273,24 @@ end)
 local AutoShotRange = 0
 Frame:SetScript("OnUpdate",function()
 	
-	if IsSpellInRange("Auto Shot","target") == 1 and AutoShotRange == 0 and castStart == false and swingStart == false then
-	   Cast_Start()
+	
+	if ( castStart ~= false ) then
+	
+		local cposX, cposY = GetPlayerMapPosition("player") -- player position atm				
+
+		if ( posX == cposX and posY == cposY ) then
+			Cast_Update();
+		else
+			if castdelay > 0 then
+				
+				castdelay = 0
+				
+			end
+			Cast_Interrupted();
+
+		end
 	end
 	
-	if ( shooting == true ) then
-
-		autoshot_latency_update()
-		if ( castStart ~= false ) then
-		
-			local cposX, cposY = GetPlayerMapPosition("player") -- player position atm				
-
-			if ( posX == cposX and posY == cposY ) then
-				Cast_Update();
-			else
-				if castdelay > 0 then
-					
-					castdelay = 0
-					autoshot_latency_update();
-				end
-				Cast_Interrupted();
-
-			end
-		end
-		
-	end
 
 	if ( swingStart ~= false ) then
 		relative = GetTime() - swingStart
@@ -328,9 +298,10 @@ Frame:SetScript("OnUpdate",function()
 		_G[AddOn.."_Texture_Timer"]:SetWidth(Table["Width"] - (Table["Width"]*relative/swingTime));
 		_G[AddOn.."_Texture_Timer"]:SetVertexColor(1,1,1);
 		
+
 	
 		if ( relative > swingTime ) then
-			if ( shooting == true and UnitCastingInfo("player") == nil ) then
+			if UnitCastingInfo("player") == nil then
 				Cast_Start()
 			else
 				_G[AddOn.."_Texture_Timer"]:SetWidth(0);
@@ -340,6 +311,7 @@ Frame:SetScript("OnUpdate",function()
 			swingStart = false;
 		end
 	end
+	autoshot_latency_update()
 	AutoShotRange = IsSpellInRange("Auto Shot","target")
 
 end)
