@@ -119,7 +119,7 @@ end
 local function Cast_Start()
 	
 
-	if IsSpellInRange("Auto Shot","target") ~= 1 then
+	if IsSpellInRange("Auto Shot","target") ~= 1 or IsAutoRepeatSpell("Auto Shot") ~= 1 then
 		_G[AddOn.."_Frame_Timer"]:SetAlpha(0);
 		_G[AddOn.."_Frame_Timer2"]:SetAlpha(0);
 		swingStart = false;
@@ -271,6 +271,7 @@ Frame:SetScript("OnEvent",function()
 end)
 
 local AutoShotRange = 0
+
 Frame:SetScript("OnUpdate",function()
 	
 	
@@ -278,7 +279,7 @@ Frame:SetScript("OnUpdate",function()
 	
 		local cposX, cposY = GetPlayerMapPosition("player") -- player position atm				
 
-		if ( posX == cposX and posY == cposY ) then
+		if ( posX == cposX and posY == cposY ) and IsAutoRepeatSpell("Auto Shot") then
 			Cast_Update();
 		else
 			if castdelay > 0 then
@@ -313,5 +314,6 @@ Frame:SetScript("OnUpdate",function()
 	end
 	autoshot_latency_update()
 	AutoShotRange = IsSpellInRange("Auto Shot","target")
+
 
 end)
