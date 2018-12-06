@@ -152,11 +152,11 @@ local function Cast_Update()
 		_G[AddOn.."_Frame_Timer"]:SetAlpha(0);
 		_G[AddOn.."_Frame_Timer2"]:SetAlpha(0);
 	elseif ( swingStart == false ) then
-		if  UnitCastingInfo("player") ~= nil or InterruptTimer > GetTime() then
-			Cast_Interrupted()
-		else
+		--if  (UnitCastingInfo("player") ~= nil or IsCurrentSpell("Steady Shot") or IsCurrentSpell("Multi-Shot")) then --or InterruptTimer > GetTime()
+		--	Cast_Interrupted()
+	--	else
 			_G[AddOn.."_Texture_Timer"]:SetWidth(Table["Width"] * relative/castTime);
-		end
+	--	end
 	end
 	if ((relative > (castTime - castdelay)) and (castStart ~= false)) then
 		_G[AddOn.."_Texture_Timer"]:SetVertexColor(0,0,0.5);		
@@ -192,10 +192,11 @@ end
 
 
 
-
+--[[
 local function print(a)
 	DEFAULT_CHAT_FRAME:AddMessage(a)
 end
+]]
 
 local Frame = CreateFrame("Frame");
 Frame:RegisterEvent("UNIT_SPELLCAST_SENT")
@@ -254,9 +255,12 @@ Frame:SetScript("OnEvent",function()
 	end
 	
 	if event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then 
+		
 		if arg2 == "Multi-Shot" then
 			InterruptTimer = GetTime()+0.5
-		elseif arg2 == "Auto Shot" then
+		elseif arg2 == "Steady Shot" then
+			st = GetTime()
+		elseif arg2 == "Auto Shot" and castStart == false and swingStart == false and not UnitCastingInfo("player") then
 			Cast_Start()
 		end
 	end
@@ -275,12 +279,14 @@ local AutoShotRange = 0
 Frame:SetScript("OnUpdate",function()
 	
 	
-	if ( castStart ~= false ) then
+	if ( swingStart == false ) then
 	
 		local cposX, cposY = GetPlayerMapPosition("player") -- player position atm				
 
 		if ( posX == cposX and posY == cposY ) and IsAutoRepeatSpell("Auto Shot") then
-			Cast_Update();
+			if  castStart ~= false then
+				Cast_Update();
+			end
 		else
 			if castdelay > 0 then
 				
