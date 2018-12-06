@@ -258,8 +258,6 @@ Frame:SetScript("OnEvent",function()
 		
 		if arg2 == "Multi-Shot" then
 			InterruptTimer = GetTime()+0.5
-		elseif arg2 == "Steady Shot" then
-			st = GetTime()
 		elseif arg2 == "Auto Shot" and castStart == false and swingStart == false and not UnitCastingInfo("player") then
 			Cast_Start()
 		end
