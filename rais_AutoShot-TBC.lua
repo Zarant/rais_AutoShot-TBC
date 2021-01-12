@@ -23,7 +23,10 @@ autoshot_latency = 0
 local castTime = 0.60
 
 
-	
+local autoShot = GetSpellInfo(75)
+local steadyShot = GetSpellInfo(34120)
+local multiShot = GetSpellInfo(2643)
+local aimedShot = GetSpellInfo(19434)
 
 
 local castdelay = 0
@@ -119,7 +122,7 @@ end
 local function Cast_Start()
 	
 
-	if IsSpellInRange("Auto Shot","target") ~= 1 or IsAutoRepeatSpell("Auto Shot") ~= 1 then
+	if IsSpellInRange(autoShot,"target") ~= 1 or IsAutoRepeatSpell(autoShot) ~= 1 then
 		_G[AddOn.."_Frame_Timer"]:SetAlpha(0);
 		_G[AddOn.."_Frame_Timer2"]:SetAlpha(0);
 		swingStart = false;
@@ -152,7 +155,7 @@ local function Cast_Update()
 		_G[AddOn.."_Frame_Timer"]:SetAlpha(0);
 		_G[AddOn.."_Frame_Timer2"]:SetAlpha(0);
 	elseif ( swingStart == false ) then
-		--if  (UnitCastingInfo("player") ~= nil or IsCurrentSpell("Steady Shot") or IsCurrentSpell("Multi-Shot")) then --or InterruptTimer > GetTime()
+		--if  (UnitCastingInfo("player") ~= nil or IsCurrentSpell(steadyShot) or IsCurrentSpell(multiShot)) then --or InterruptTimer > GetTime()
 		--	Cast_Interrupted()
 	--	else
 			_G[AddOn.."_Texture_Timer"]:SetWidth(Table["Width"] * relative/castTime);
@@ -238,27 +241,27 @@ Frame:SetScript("OnEvent",function()
 
 	if ((event == "UNIT_SPELLCAST_SUCCEEDED") or (event == "UNIT_SPELLCAST_START") or (event == "UNIT_SPELLCAST_STOP")) and arg1 == "player" then
 
-		if arg2 == "Auto Shot" then
+		if arg2 == autoShot then
 		castdelay = autoshot_latency/1e3
 		autoshot_latency_update();
 		Swing_Start();
 		
-		elseif _G[AddOn.."_Frame_Timer"]:GetAlpha() == 0 and (arg2 == "Steady Shot" or arg2 == "Multi-Shot" or arg2 == "Aimed Shot") then
+		elseif _G[AddOn.."_Frame_Timer"]:GetAlpha() == 0 and (arg2 == steadyShot or arg2 == multiShot or arg2 == aimedShot) then
 			Cast_Interrupted();	
 		end
 
 	end
 	
 	--
-	if event == "UNIT_SPELLCAST_FAILED" and arg1 == "player" and (arg2 == "Auto Shot" ) then
+	if event == "UNIT_SPELLCAST_FAILED" and arg1 == "player" and (arg2 == autoShot ) then
 		Cast_Interrupted();
 	end
 	
 	if event == "UNIT_SPELLCAST_SENT" and arg1 == "player" then 
 		
-		if arg2 == "Multi-Shot" then
+		if arg2 == multiShot then
 			InterruptTimer = GetTime()+0.5
-		elseif arg2 == "Auto Shot" and castStart == false and swingStart == false and not UnitCastingInfo("player") then
+		elseif arg2 == autoShot and castStart == false and swingStart == false and not UnitCastingInfo("player") then
 			Cast_Start()
 		end
 	end
@@ -281,7 +284,7 @@ Frame:SetScript("OnUpdate",function()
 	
 		local cposX, cposY = GetPlayerMapPosition("player") -- player position atm				
 
-		if ( posX == cposX and posY == cposY ) and IsAutoRepeatSpell("Auto Shot") then
+		if ( posX == cposX and posY == cposY ) and IsAutoRepeatSpell(autoShot) then
 			if  castStart ~= false then
 				Cast_Update();
 			end
@@ -317,7 +320,7 @@ Frame:SetScript("OnUpdate",function()
 		end
 	end
 	autoshot_latency_update()
-	AutoShotRange = IsSpellInRange("Auto Shot","target")
+	AutoShotRange = IsSpellInRange(autoShot,"target")
 
 
 end)
