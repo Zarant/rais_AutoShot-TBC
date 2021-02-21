@@ -2,6 +2,6 @@
 ## Title: rais_AutoShot
 ## Notes: TBC port of the original rais_AutoShot by raisnilt
 ## Author: Zarant
-## SavedVariables: autoshot_latency
+## SavedVariables: raisAutoShot
 
 rais_AutoShot-TBC.lua
