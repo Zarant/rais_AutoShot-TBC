@@ -398,7 +398,7 @@ Frame:SetScript("OnEvent",function()
 	if ((event == "UNIT_SPELLCAST_SUCCEEDED") or (event == "UNIT_SPELLCAST_START") or (event == "UNIT_SPELLCAST_STOP")) and arg1 == "player" then
 
 		if arg2 == autoShot then
-		castdelay = r.autoshot_latency
+		castdelay = r.autoshot_latency or 0
 		autoshot_latency_update();
 		Swing_Start();
 
